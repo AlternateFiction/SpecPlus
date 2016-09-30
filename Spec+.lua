@@ -350,7 +350,7 @@ ChangeEquip
 function SpecPlus:ChangeEquip()
 	local name = SP.db.char.equipSets[SP.currentSpec];
 	local icon = SP.db.char.equipSetIcons[SP.currentSpec];
-	if name ~= '--none--' then
+	if name ~= nil and name ~= "--none--" then
 		UseEquipmentSet(name);
 		if SP.db.char.showSetPrint == true then
 			if SP.db.char.showSetIcon == true and icon ~= nil then
