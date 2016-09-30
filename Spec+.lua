@@ -287,12 +287,22 @@ SP.options = {
 }
 --]]
 
+
+local function GetLootSpecializationIndex()
+	local lootID = GetLootSpecialization();
+	for i = 1, SP.numspecs do
+		local specID = GetSpecializationInfo(i);
+		if lootID == specID then
+			return i
+		end
+	end
+	return 0
+end
+
 --[[-----------------------------------------------------------------------------------
 UpdateLDB
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:UpdateLDB()
-	SP.currentSpec = GetSpecialization();
-	
 	local id, name, description, icon, background, role = GetSpecializationInfo(SP.currentSpec);
 	
 	if SP.currentSpec ~= nil then		
@@ -382,20 +392,41 @@ function SpecPlus:OnEnter(self)
 	SP.tooltip:Clear(); 
 
 	SP.tooltip:AddHeader("|cff00ff96Spec+|r");
-	SP.tooltip:AddLine("Click spec to activate", "Gear");
-	SP.tooltip:AddSeparator(2, 0, 55, 255)
+	SP.tooltip:AddLine("Click to activate spec", "Gear");
+	SP.tooltip:AddSeparator(2, 0, 55, 255);
 	
 
 	local numlines = 3; --number of lines created above this
 		
-		for i = 1, SP.numspecs do
-				local id, name, description, icon, background, role = GetSpecializationInfo(i);
-				numlines = numlines + 1;
-				SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name), SP.db.char.equipSets[i]);
-				SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
-					SpecPlus:LibQTipClick(i);
-				end);
+	for i = 1, SP.numspecs do
+		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+		numlines = numlines + 1;
+		if SP.currentSpec ~= i then
+			name = "|cff999999" .. name .. "|r"
 		end
+		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name), SP.db.char.equipSets[i]);
+		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
+			SpecPlus:LibQTipClick(i);
+		end);
+	end
+
+	SP.tooltip:AddLine("Click to activate loot spec");
+	SP.tooltip:AddSeparator(2, 0, 55, 255);
+
+
+	numlines = numlines + 2;
+
+	for i = 1, SP.numspecs do
+		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+		numlines = numlines + 1;
+		if SP.currentLootSpec ~= i then
+			name = "|cff999999" .. name .. "|r"
+		end
+		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name));
+		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
+			SpecPlus:LibQTipClick(-i);
+		end);
+	end
 
 	SP.tooltip:AddLine("|cffffff00Left Click|r to change specs");
 	SP.tooltip:AddLine("|cffffff00Right Click|r for options");
@@ -432,10 +463,23 @@ end
 LibQTipClick
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:LibQTipClick(index)
-	if SP.currentSpec == index then
-		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: That Specialization is already active.");
-	else
-		SetSpecialization(index);
+	if index > 0 then  -- spec
+		if SP.currentSpec == index then
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: That Specialization is already active.");
+		else
+			SetSpecialization(index);
+			SP.LibQTip:Release(SP.tooltip);
+			SP.tooltip = nil;
+		end
+	else  -- loot spec
+		index = math.abs(index);
+		local specID;
+		if SP.currentLootSpec == index then
+			specID = 0;
+		else
+			specID = GetSpecializationInfo(index);
+		end
+		SetLootSpecialization(specID);
 		SP.LibQTip:Release(SP.tooltip);
 		SP.tooltip = nil;
 	end
@@ -492,6 +536,7 @@ function SpecPlus:OnEnable()
 				SP.sets[i+1] = name;
 				SP.setIcons[i+1] = icon;
 		end	
+	SP.currentLootSpec = GetLootSpecializationIndex();
 	SpecPlus:UpdateLDB();
 	SpecPlus:ScheduleTimer("UpdateLDB", 0.25);
 end
@@ -502,7 +547,9 @@ function SpecPlus:ADDON_LOADED(AddOn)
 		--SP.frame:UnregisterEvent('ADDON_LOADED');
 	--end
 end
+
 function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
+	SP.currentSpec = GetSpecialization();
 	SP.currentTime = GetTime();
 	if SP.currentTime > SP.oldTime + 3 then
 		SpecPlus:ScheduleTimer("SpecChanged", 0.25);
@@ -510,12 +557,18 @@ function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
 	end
 end
 
+function SpecPlus:PLAYER_LOOT_SPEC_UPDATED(event)
+	SP.currentLootSpec = GetLootSpecializationIndex();
+end
+
 function SpecPlus:PLAYER_ENTERING_WORLD(event)
-	SP.frame:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED');
+	SP.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+	SP.frame:RegisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end
 
 function SpecPlus:PLAYER_LEAVING_WORLD(event)
-	SP.frame:UnregisterEvent('ACTIVE_TALENT_GROUP_CHANGED');
+	SP.frame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+	SP.frame:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end	
 
 SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = '/sc', '/spec', '/specp', '/specplus';
