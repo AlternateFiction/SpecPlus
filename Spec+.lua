@@ -31,21 +31,6 @@ SP.sets = {'--none--'};
 SP.setIcons = {"Interface\\Icons\\INV_Misc_QuestionMark.blp"};
 SP.clickSelect = {'Toggle Specs', 'Show Talents'};
 
-SP.classColor = {
-	"C79C6E",
-	"F58CBA",
-	"ABD473",
-	"FFF569",
-	"FFFFFF",
-	"C41F3B",
-	"0070DE",
-	"69CCF0",
-	"9482C9",
-	"00FF96",
-	"FF7D0A",
-	"A330C9",
-}
-
 SP.defaults = {
 	char = {
 		equipSets = {},
@@ -375,8 +360,8 @@ end
 ColorName
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:ColorName(name)
-	local localizedClass, englishClass, classIndex = UnitClass("Player");
-	local coloredName = "|cff"..SP.classColor[classIndex]..name.."|r";
+	local _, class = UnitClass("Player");
+	local coloredName = "|c"..RAID_CLASS_COLORS[class].colorStr..name.."|r";
 	return coloredName;
 end
 
