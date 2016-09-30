@@ -27,9 +27,9 @@ SP.currentTime = 0;
 SP.oldTime = 0;
 SP.currentSpec = GetSpecialization();
 SP.specs = {"","","",""};
-SP.sets = {'--none--'};
+SP.sets = {"--none--"};
 SP.setIcons = {"Interface\\Icons\\INV_Misc_QuestionMark.blp"};
-SP.clickSelect = {'Toggle Specs', 'Show Talents'};
+SP.clickSelect = {"Toggle Specs", "Show Talents"};
 
 SP.defaults = {
 	char = {
@@ -50,7 +50,7 @@ SP.defaults = {
 		showClassColorLDB = false,
 		showClassColorPrint = false,
 		showLibDBIcon = true,
-		},
+	},
 	profile = {
 		minimap = {
 			hide = false,
@@ -62,31 +62,31 @@ SP.defaults = {
 Options 
 --]]-----------------------------------------------------------------------------------
 SP.options = {
-    name = 'Spec+ Settings',
-    handler = SpecPlus,
-    type = 'group',
-    args = {
+	name = "Spec+ Settings",
+	handler = SpecPlus,
+	type = "group",
+	args = {
 		OnClickOptions = {
-			name = 'OnClick',
-			type = 'group',
+			name = "OnClick",
+			type = "group",
 			inline = true,
 			order = 1,
 			args = {
 				clickSelect = {
-					type = 'select',
-					style = 'dropdown',
-					name = 'Click action',
-					desc = 'Choose what happens when you click the addon',
+					type = "select",
+					style = "dropdown",
+					name = "Click action",
+					desc = "Choose what happens when you click the addon",
 					values = SP.clickSelect,
 					order = 1,
 					set = function(info,val) SP.db.char.clickSelectIndex = val end,
 					get = function(info) return SP.db.char.clickSelectIndex end,
 				},
 				specPrim = {
-					type = 'select',
-					style = 'dropdown',
-					name  = '  Primary Spec',
-					desc = 'Primary specialization to toggle between (default if current spec is not one of these two)',
+					type = "select",
+					style = "dropdown",
+					name  = "  Primary Spec",
+					desc = "Primary specialization to toggle between (default if current spec is not one of these two)",
 					values = SP.specs,
 					set = function(info,val) SP.db.char.toggleSpec[1] = val end,
 					get = function(info) return SP.db.char.toggleSpec[1] end,
@@ -94,10 +94,10 @@ SP.options = {
 					disabled = function() if SP.db.char.clickSelectIndex == 1 then return false else return true end end,
 				},
 				specSecd = {
-					type = 'select',
-					style = 'dropdown',
-					name  = '  Secondary Spec',
-					desc = 'Secondary specialization to toggle between',
+					type = "select",
+					style = "dropdown",
+					name  = "  Secondary Spec",
+					desc = "Secondary specialization to toggle between",
 					values = SP.specs,
 					set = function(info,val) SP.db.char.toggleSpec[2] = val end,
 					get = function(info) return SP.db.char.toggleSpec[2] end,
@@ -107,16 +107,16 @@ SP.options = {
 			},
 		},
 		equipSetsOptions = {
-			name = 'Equipment Sets',
-			type = 'group',
+			name = "Equipment Sets",
+			type = "group",
 			inline = true,
 			order = 2,
 			args = {
 				setDropDown1 = {
-					type = 'select',
-					style = 'dropdown',
+					type = "select",
+					style = "dropdown",
 					name  = function() return "  "..SP.specs[1] end,
-					desc = 'Set the equipment set for this specialization',
+					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					set = function(info,val) 
 							SP.db.char.equipSets[1] = SP.sets[val];
@@ -127,10 +127,10 @@ SP.options = {
 					order = 1,
 				},
 				setDropDown2 = {
-					type = 'select',
-					style = 'dropdown',
+					type = "select",
+					style = "dropdown",
 					name  = function() return "  "..SP.specs[2] end,
-					desc = 'Set the equipment set for this specialization',
+					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					set = function(info,val) 
 							SP.db.char.equipSets[2] = SP.sets[val];
@@ -141,10 +141,10 @@ SP.options = {
 					order = 2,
 				},
 				setDropDown3 = {
-					type = 'select',
-					style = 'dropdown',
+					type = "select",
+					style = "dropdown",
 					name  = function() return "  "..SP.specs[3] end,
-					desc = 'Set the equipment set for this specialization',
+					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					set = function(info,val) 
 							SP.db.char.equipSets[3] = SP.sets[val];
@@ -156,10 +156,10 @@ SP.options = {
 					hidden = function() if SP.numspecs > 2 then return false else return true end end,
 				},
 				setDropDown4 = {
-					type = 'select',
-					style = 'dropdown',
+					type = "select",
+					style = "dropdown",
 					name  = function() return "  "..SP.specs[4] end,
-					desc = 'Set the equipment set for this specialization',
+					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					set = function(info,val) 
 							SP.db.char.equipSets[4] = SP.sets[val];
@@ -173,31 +173,31 @@ SP.options = {
 			},
 		},
 		ldbOptions = {
-			name = 'LDB Options',
-			type = 'group',
+			name = "LDB Options",
+			type = "group",
 			inline = true,
 			order = 3,
 			args = {
-			showLable = {
-					type = 'toggle',
-					name = 'Show Label Text',
-					desc = 'Shows the "Spec+" label on the Data Broker',
+				showLable = {
+					type = "toggle",
+					name = "Show Label Text",
+					desc = "Shows the \"Spec+\" label on the Data Broker",
 					set = function(info,val) SP.db.char.showLabel = val; SpecPlus:UpdateLDB() end,
 					get = function(info) return SP.db.char.showLabel end,
 					order = 1,
 				},
-			showTextIcon = {
-					type = 'toggle',
-					name = 'Show Text Icon',
-					desc = 'Shows the spec icon in the broker text',
+				showTextIcon = {
+					type = "toggle",
+					name = "Show Text Icon",
+					desc = "Shows the spec icon in the broker text",
 					set = function(info,val) SP.db.char.showTextIcon = val; SpecPlus:UpdateLDB() end,
 					get = function(info) return SP.db.char.showTextIcon end,
 					order = 2,
 				},
-			showClassColorLDB = {
-					type = 'toggle',
-					name = 'Show Class Color',
-					desc = 'Shows the broker text with your class color',
+				showClassColorLDB = {
+					type = "toggle",
+					name = "Show Class Color",
+					desc = "Shows the broker text with your class color",
 					set = function(info,val) SP.db.char.showClassColorLDB = val; SpecPlus:UpdateLDB() end,
 					get = function(info) return SP.db.char.showClassColorLDB end,
 					order = 3,
@@ -205,47 +205,47 @@ SP.options = {
 			},
 		},
 		printOptions = {
-			name = 'Chat Print Options',
-			type = 'group',
+			name = "Chat Print Options",
+			type = "group",
 			inline = true,
 			order = 4,
 			args = {
-			showChatPrint = {
-					type = 'toggle',
-					name = 'Print Spec Change',
-					desc = 'Show a chat printout when your spec has changed',
+				showChatPrint = {
+					type = "toggle",
+					name = "Print Spec Change",
+					desc = "Show a chat printout when your spec has changed",
 					set = function(info,val) SP.db.char.showChatPrint = val end,
 					get = function(info) return SP.db.char.showChatPrint end,
 					order = 1,
 				},
-			showPrintIcon = {
-					type = 'toggle',
-					name = 'Show Print Icon',
-					desc = 'Shows the spec icon in the chat printout',
+				showPrintIcon = {
+					type = "toggle",
+					name = "Show Print Icon",
+					desc = "Shows the spec icon in the chat printout",
 					set = function(info,val) SP.db.char.showPrintIcon = val end,
 					get = function(info) return SP.db.char.showPrintIcon end,
 					order = 2,
 				},
-			showClassColorPrint = {
-					type = 'toggle',
-					name = 'Show Class Color',
-					desc = 'Shows the chat printout with your class color',
+				showClassColorPrint = {
+					type = "toggle",
+					name = "Show Class Color",
+					desc = "Shows the chat printout with your class color",
 					set = function(info,val) SP.db.char.showClassColorPrint = val end,
 					get = function(info) return SP.db.char.showClassColorPrint end,
 					order = 3,
 				},
-			showSetPrint = {
-					type = 'toggle',
-					name = 'Print Equip Change',
-					desc = 'Show a chat printout when your equipment set has changed',
+				showSetPrint = {
+					type = "toggle",
+					name = "Print Equip Change",
+					desc = "Show a chat printout when your equipment set has changed",
 					set = function(info,val) SP.db.char.showSetPrint = val end,
 					get = function(info) return SP.db.char.showSetPrint end,
 					order = 4,
 				},
-			showSetIcon = {
-					type = 'toggle',
-					name = 'Show Print Icon',
-					desc = 'Shows the equipment set icon in the chat printout',
+				showSetIcon = {
+					type = "toggle",
+					name = "Show Print Icon",
+					desc = "Shows the equipment set icon in the chat printout",
 					set = function(info,val) SP.db.char.showSetIcon = val end,
 					get = function(info) return SP.db.char.showSetIcon end,
 					order = 5,
@@ -253,15 +253,15 @@ SP.options = {
 			},
 		},
 		miscellaneous = {
-			name = 'Miscellaneous',
-			type = 'group',
+			name = "Miscellaneous",
+			type = "group",
 			inline = true,
 			order = 5,
 			args = {
-			showChatPrint = {
-					type = 'toggle',
-					name = 'Show Minimap Icon',
-					desc = 'Show a Minimap icon that will display the tooltip',
+				showChatPrint = {
+					type = "toggle",
+					name = "Show Minimap Icon",
+					desc = "Show a Minimap icon that will display the tooltip",
 					set = function(info,val) SP.db.char.showLibDBIcon = val; SpecPlus:UpdateLDB() end,
 					get = function(info) return SP.db.char.showLibDBIcon end,
 					order = 1,
@@ -313,9 +313,9 @@ function SpecPlus:UpdateLDB()
 	end
 	
 	if SP.db.char.showLibDBIcon == true then
-		SP.LibDBIcon:Show('Spec+')
+		SP.LibDBIcon:Show("Spec+")
 	else
-		SP.LibDBIcon:Hide('Spec+')
+		SP.LibDBIcon:Hide("Spec+")
 	end
 end
 
@@ -482,8 +482,8 @@ function SpecPlus:OnInitialize()
 	SP.optionsFrame = SP.AceConfigDialog:AddToBlizOptions("SpecPlus", "Spec+");
 	
 	--Load Data Broker Object
-	SP.ldb = SP.LibDataBroker:NewDataObject('Spec+', {
-		type = 'data source',
+	SP.ldb = SP.LibDataBroker:NewDataObject("Spec+", {
+		type = "data source",
 		label = "Spec+",
 		text = "Spec+",
 		icon = "Interface\\Icons\\INV_Misc_QuestionMark.blp",
@@ -492,16 +492,16 @@ function SpecPlus:OnInitialize()
 	});
 	
 	--Register Icon
-	SP.LibDBIcon:Register('Spec+', SP.ldb, SP.db.profile.minimap);
+	SP.LibDBIcon:Register("Spec+", SP.ldb, SP.db.profile.minimap);
 	
-	SP.frame:SetScript('OnEvent', function(self, event, ...) 
+	SP.frame:SetScript("OnEvent", function(self, event, ...) 
 		SpecPlus[event](self, ...); 
 	end);
 	
 	SP.frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 	SP.frame:RegisterEvent("PLAYER_LEAVING_WORLD");
-	SP.frame:RegisterEvent('ADDON_LOADED');
-	--SP.frame:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED');
+	SP.frame:RegisterEvent("ADDON_LOADED");
+	--SP.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 	
 	SP.oldTime = GetTime();
 end
@@ -511,16 +511,16 @@ OnEnable
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:OnEnable()
 	SP.numspecs = GetNumSpecializations();
-		for i = 1, SP.numspecs do
-			local id, name, description, icon, background, role = GetSpecializationInfo(i);
-				SP.specs[i] = name;
-		end
+	for i = 1, SP.numspecs do
+		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+		SP.specs[i] = name;
+	end
 	SP.numsets = GetNumEquipmentSets();
-		for i = 1, SP.numsets do
-			local name, icon, setID, isEquipped, numItems, numEquipped, numInventory, numMissing, numIgnored = GetEquipmentSetInfo(i);
-				SP.sets[i+1] = name;
-				SP.setIcons[i+1] = icon;
-		end	
+	for i = 1, SP.numsets do
+		local name, icon, setID, isEquipped, numItems, numEquipped, numInventory, numMissing, numIgnored = GetEquipmentSetInfo(i);
+		SP.sets[i+1] = name;
+		SP.setIcons[i+1] = icon;
+	end	
 	SP.currentLootSpec = GetLootSpecializationIndex();
 	SpecPlus:UpdateLDB();
 	SpecPlus:ScheduleTimer("UpdateLDB", 0.25);
@@ -529,7 +529,7 @@ end
 function SpecPlus:ADDON_LOADED(AddOn)
 	--if AddOn == "Spec+" then
 		--SpecPlus:UpdateLDB();
-		--SP.frame:UnregisterEvent('ADDON_LOADED');
+		--SP.frame:UnregisterEvent("ADDON_LOADED");
 	--end
 end
 
@@ -556,9 +556,9 @@ function SpecPlus:PLAYER_LEAVING_WORLD(event)
 	SP.frame:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end	
 
-SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = '/sc', '/spec', '/specp', '/specplus';
+SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
 local function handler(msg, editbox)
-	if msg == 'hw' then
+	if msg == "hw" then
 		print("Hello, World!");
 	else
 		InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
