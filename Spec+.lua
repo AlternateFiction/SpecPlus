@@ -28,7 +28,7 @@ SP.currentSpec = GetSpecialization();
 SP.specs = {};
 SP.sets = {"--none--"};
 SP.setIcons = {"Interface\\Icons\\INV_Misc_QuestionMark.blp"};
-SP.clickSelect = {"Toggle Specs", "Show Talents"};
+SP.clickActions = {"Toggle Specs", "Show Talents"};
 
 SP.defaults = {
 	char = {
@@ -41,16 +41,16 @@ SP.defaults = {
 		showLoot = false,
 	},
 	profile = {
-		clickSelectIndex = 1,
-		showLabel = true,
-		showTextIcon = true,
-		showClassColorLDB = false,
+		clickActionIndex = 1,
+		showLdbText = true,
+		showLdbIcon = true,
+		showLdbClassColor = false,
+		showPrint = true,
 		showPrintIcon = true,
-		showChatPrint = true,
+		showPrintClassColor = false,
 		showSetPrint = true,
-		showSetIcon = true,
-		showClassColorPrint = false,
-		showLibDBIcon = true,
+		showSetPrintIcon = true,
+		showMinimapButton = true,
 	},
 }
 
@@ -75,12 +75,12 @@ SP.options = {
 			inline = true,
 			order = 1,
 			args = {
-				clickSelectIndex = {
+				clickActionIndex = {
 					type = "select",
 					style = "dropdown",
 					name = "Click action",
 					desc = "Choose what happens when you click the addon",
-					values = SP.clickSelect,
+					values = SP.clickActions,
 					order = 1,
 				},
 				specPrim = {
@@ -92,7 +92,7 @@ SP.options = {
 					get = function(info) return SP.db.char.toggleSpec[1] end,
 					set = function(info, value) SP.db.char.toggleSpec[1] = value end,
 					order = 2,
-					disabled = function() if SP.db.profile.clickSelectIndex == 1 then return false else return true end end,
+					disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
 				},
 				specSecd = {
 					type = "select",
@@ -103,7 +103,7 @@ SP.options = {
 					get = function(info) return SP.db.char.toggleSpec[2] end,
 					set = function(info, value) SP.db.char.toggleSpec[2] = value end,
 					order = 3,
-					disabled = function() if SP.db.profile.clickSelectIndex == 1 then return false else return true end end,
+					disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
 				},
 			},
 		},
@@ -144,7 +144,7 @@ SP.options = {
 					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					order = 3,
-					hidden = function() if SP.numspecs > 2 then return false else return true end end,
+					hidden = function() if SP.numSpecs > 2 then return false else return true end end,
 				},
 				setDropDown4 = {
 					type = "select",
@@ -153,7 +153,7 @@ SP.options = {
 					desc = "Set the equipment set for this specialization",
 					values = SP.sets,
 					order = 4,
-					hidden = function() if SP.numspecs > 3 then return false else return true end end,
+					hidden = function() if SP.numSpecs > 3 then return false else return true end end,
 				},
 			},
 		},
@@ -163,19 +163,19 @@ SP.options = {
 			inline = true,
 			order = 3,
 			args = {
-				showLabel = {
+				showLdbText = {
 					type = "toggle",
 					name = "Show Label Text",
 					desc = "Shows the \"Spec+\" label on the Data Broker",
 					order = 1,
 				},
-				showTextIcon = {
+				showLdbIcon = {
 					type = "toggle",
 					name = "Show Text Icon",
 					desc = "Shows the spec icon in the broker text",
 					order = 2,
 				},
-				showClassColorLDB = {
+				showLdbClassColor = {
 					type = "toggle",
 					name = "Show Class Color",
 					desc = "Shows the broker text with your class color",
@@ -189,7 +189,7 @@ SP.options = {
 			inline = true,
 			order = 4,
 			args = {
-				showChatPrint = {
+				showPrint = {
 					type = "toggle",
 					name = "Print Spec Change",
 					desc = "Show a chat printout when your spec has changed",
@@ -201,7 +201,7 @@ SP.options = {
 					desc = "Shows the spec icon in the chat printout",
 					order = 2,
 				},
-				showClassColorPrint = {
+				showPrintClassColor = {
 					type = "toggle",
 					name = "Show Class Color",
 					desc = "Shows the chat printout with your class color",
@@ -213,7 +213,7 @@ SP.options = {
 					desc = "Show a chat printout when your equipment set has changed",
 					order = 4,
 				},
-				showSetIcon = {
+				showSetPrintIcon = {
 					type = "toggle",
 					name = "Show Print Icon",
 					desc = "Shows the equipment set icon in the chat printout",
@@ -227,7 +227,7 @@ SP.options = {
 			inline = true,
 			order = 5,
 			args = {
-				showLibDBIcon = {
+				showMinimapButton = {
 					type = "toggle",
 					name = "Show Minimap Icon",
 					desc = "Show a Minimap icon that will display the tooltip",
@@ -242,7 +242,7 @@ SP.options = {
 
 local function GetLootSpecializationIndex()
 	local lootID = GetLootSpecialization();
-	for i = 1, SP.numspecs do
+	for i = 1, SP.numSpecs do
 		local specID = GetSpecializationInfo(i);
 		if lootID == specID then
 			return i
@@ -255,14 +255,16 @@ end
 UpdateLDB
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:UpdateLDB()
-	local id, name, description, icon, background, role = GetSpecializationInfo(SP.currentSpec);
-	
+	local name, icon
+
 	if SP.currentSpec ~= nil then		
-		if SP.db.profile.showClassColorLDB == true then
+		_, name, _, icon = GetSpecializationInfo(SP.currentSpec);
+
+		if SP.db.profile.showLdbClassColor == true then
 			name = SpecPlus:ColorName(name);
 		end
 		
-		if SP.db.profile.showTextIcon == true then
+		if SP.db.profile.showLdbIcon == true then
 			name = format(("|T%s:16|t%s"), icon, " "..name);
 		end
 	else
@@ -273,13 +275,13 @@ function SpecPlus:UpdateLDB()
 	SP.ldb.icon = icon;
 	SP.ldb.text = name;
 	
-	if SP.db.profile.showLabel == true then
+	if SP.db.profile.showLdbText == true then
 		SP.ldb.label = "Spec+";
 	else 
 		SP.ldb.label = nil
 	end
 	
-	if SP.db.profile.showLibDBIcon == true then
+	if SP.db.profile.showMinimapButton == true then
 		SP.LibDBIcon:Show("Spec+")
 	else
 		SP.LibDBIcon:Hide("Spec+")
@@ -292,13 +294,13 @@ SpecChanged
 function SpecPlus:SpecChanged()
 	SpecPlus:UpdateLDB();
 	
-	local id, name, description, icon, background, role = GetSpecializationInfo(SP.currentSpec);
+	local _, name, _, icon = GetSpecializationInfo(SP.currentSpec);
 	
-	if SP.db.profile.showChatPrint == true then
+	if SP.db.profile.showPrint == true then
 		if SP.db.profile.showPrintIcon == true then
 			name = format(("|T%s:16|t%s"), icon, " "..name);
 		end
-		if SP.db.profile.showClassColorPrint == true then
+		if SP.db.profile.showPrintClassColor == true then
 			name = SpecPlus:ColorName(name);
 		end
 		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: Specialization changed to "..name..".");
@@ -315,7 +317,7 @@ function SpecPlus:ChangeEquip()
 	if name ~= nil and name ~= "--none--" then
 		UseEquipmentSet(name);
 		if SP.db.profile.showSetPrint == true then
-			if SP.db.profile.showSetIcon == true and icon ~= nil then
+			if SP.db.profile.showSetPrintIcon == true and icon ~= nil then
 				name = format(("|T%s:16|t%s"),icon, name)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: Equipment Set changed to "..name..".");
@@ -350,8 +352,8 @@ function SpecPlus:OnEnter(self)
 
 	local numlines = 3; --number of lines created above this
 		
-	for i = 1, SP.numspecs do
-		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+	for i = 1, SP.numSpecs do
+		local _, name, _, icon = GetSpecializationInfo(i);
 		numlines = numlines + 1;
 		if SP.currentSpec ~= i then
 			name = "|cff999999" .. name .. "|r"
@@ -368,8 +370,8 @@ function SpecPlus:OnEnter(self)
 
 	numlines = numlines + 2;
 
-	for i = 1, SP.numspecs do
-		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+	for i = 1, SP.numSpecs do
+		local _, name, _, icon = GetSpecializationInfo(i);
 		numlines = numlines + 1;
 		if SP.currentLootSpec ~= i then
 			name = "|cff999999" .. name .. "|r"
@@ -397,7 +399,7 @@ function SpecPlus:OnClick(button)
 	button = button or "LeftButton";
 	
 	if button == "LeftButton" then
-		if SP.db.profile.clickSelectIndex == 1 then
+		if SP.db.profile.clickActionIndex == 1 then
 			if SP.currentSpec == SP.db.char.toggleSpec[1] then
 				SetSpecialization(SP.db.char.toggleSpec[2]);
 			else
@@ -459,7 +461,7 @@ function SpecPlus:OnInitialize()
 	});
 	
 	--Register Icon
-	SP.LibDBIcon:Register("Spec+", SP.ldb, {hide=not SP.db.profile.showLibDBIcon});
+	SP.LibDBIcon:Register("Spec+", SP.ldb, {hide=not SP.db.profile.showMinimapButton});
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
@@ -471,14 +473,14 @@ end
 OnEnable
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:OnEnable()
-	SP.numspecs = GetNumSpecializations();
-	for i = 1, SP.numspecs do
-		local id, name, description, icon, background, role = GetSpecializationInfo(i);
+	SP.numSpecs = GetNumSpecializations();
+	for i = 1, SP.numSpecs do
+		local _, name = GetSpecializationInfo(i);
 		SP.specs[i] = name;
 	end
 	SP.numsets = GetNumEquipmentSets();
 	for i = 1, SP.numsets do
-		local name, icon, setID, isEquipped, numItems, numEquipped, numInventory, numMissing, numIgnored = GetEquipmentSetInfo(i);
+		local name, icon = GetEquipmentSetInfo(i);
 		SP.sets[i+1] = name;
 		SP.setIcons[i+1] = icon;
 	end	
