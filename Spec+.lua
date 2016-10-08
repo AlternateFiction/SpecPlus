@@ -170,7 +170,7 @@ SP.options = {
 				},
 				showLdbIcon = {
 					type = "toggle",
-					name = "Show Text Icon",
+					name = "Show Spec Icon",
 					desc = "Shows the spec icon in the broker text",
 					order = 2,
 				},
@@ -196,7 +196,7 @@ SP.options = {
 				},
 				showPrintIcon = {
 					type = "toggle",
-					name = "Show Print Icon",
+					name = "Show Spec Icon",
 					desc = "Shows the spec icon in the chat printout",
 					order = 2,
 				},
@@ -214,7 +214,7 @@ SP.options = {
 				},
 				showSetPrintIcon = {
 					type = "toggle",
-					name = "Show Print Icon",
+					name = "Show Equip Icon",
 					desc = "Shows the equipment set icon in the chat printout",
 					order = 5,
 				},
@@ -228,8 +228,8 @@ SP.options = {
 			args = {
 				showMinimapButton = {
 					type = "toggle",
-					name = "Show Minimap Icon",
-					desc = "Show a Minimap icon that will display the tooltip",
+					name = "Show Minimap Button",
+					desc = "Show a Minimap button that will display the tooltip",
 					order = 1,
 				},
 			},
@@ -381,7 +381,11 @@ function SpecPlus:OnEnter(self)
 		end);
 	end
 
-	SP.tooltip:AddLine("|cffffff00Left Click|r to change specs");
+	if SP.db.profile.clickActionIndex == 1 then
+		SP.tooltip:AddLine("|cffffff00Left Click|r to toggle specs");
+	else
+		SP.tooltip:AddLine("|cffffff00Left Click|r to view talents");
+	end
 	SP.tooltip:AddLine("|cffffff00Right Click|r for options");
 	--SP.tooltip:AddLine(" ")
 	--SP.tooltip:EnableMouse(true);
