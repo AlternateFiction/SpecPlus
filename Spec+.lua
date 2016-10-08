@@ -13,12 +13,8 @@ SpecPlus.SP = {};
 local SP = SpecPlus.SP;
 
 --Load Libraries
-SP.AceDB = LibStub("AceDB-3.0");
-SP.AceConfig = LibStub("AceConfig-3.0");
-SP.AceConfigDialog = LibStub("AceConfigDialog-3.0");
-SP.LibQTip = LibStub("LibQTip-1.0");
-SP.LibDataBroker = LibStub("LibDataBroker-1.1");
-SP.LibDBIcon = LibStub("LibDBIcon-1.0");
+local LibQTip = LibStub("LibQTip-1.0");
+local LibDBIcon = LibStub("LibDBIcon-1.0");
 
 --Setup Variables
 SP.tooltip = nil;
@@ -56,186 +52,188 @@ SP.defaults = {
 --[[-----------------------------------------------------------------------------------
 Options 
 --]]-----------------------------------------------------------------------------------
-SP.options = {
-	name = "Spec+ Settings",
-	handler = SpecPlus,
-	type = "group",
-	get = function(info)
-		return SP.db.profile[info[#info]];
-	end,
-	set = function(info, value)
-		SP.db.profile[info[#info]] = value;
-		SpecPlus:UpdateLDB();
-	end,
-	args = {
-		OnClickOptions = {
-			name = "OnClick",
-			type = "group",
-			inline = true,
-			order = 1,
-			args = {
-				clickActionIndex = {
-					type = "select",
-					style = "dropdown",
-					name = "Click action",
-					desc = "Choose what happens when you click the addon",
-					values = SP.clickActions,
-					order = 1,
+local function CreateConfig()
+	return {
+		name = "Spec+ Settings",
+		handler = SpecPlus,
+		type = "group",
+		get = function(info)
+			return SP.db.profile[info[#info]];
+		end,
+		set = function(info, value)
+			SP.db.profile[info[#info]] = value;
+			SpecPlus:UpdateLDB();
+		end,
+		args = {
+			OnClickOptions = {
+				name = "OnClick",
+				type = "group",
+				inline = true,
+				order = 1,
+				args = {
+					clickActionIndex = {
+						type = "select",
+						style = "dropdown",
+						name = "Click action",
+						desc = "Choose what happens when you click the addon",
+						values = SP.clickActions,
+						order = 1,
+					},
+					specPrim = {
+						type = "select",
+						style = "dropdown",
+						name  = "  Primary Spec",
+						desc = "Primary specialization to toggle between (default if current spec is not one of these two)",
+						values = SP.specs,
+						get = function(info) return SP.db.char.toggleSpec[1] end,
+						set = function(info, value) SP.db.char.toggleSpec[1] = value end,
+						order = 2,
+						disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
+					},
+					specSecd = {
+						type = "select",
+						style = "dropdown",
+						name  = "  Secondary Spec",
+						desc = "Secondary specialization to toggle between",
+						values = SP.specs,
+						get = function(info) return SP.db.char.toggleSpec[2] end,
+						set = function(info, value) SP.db.char.toggleSpec[2] = value end,
+						order = 3,
+						disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
+					},
 				},
-				specPrim = {
-					type = "select",
-					style = "dropdown",
-					name  = "  Primary Spec",
-					desc = "Primary specialization to toggle between (default if current spec is not one of these two)",
-					values = SP.specs,
-					get = function(info) return SP.db.char.toggleSpec[1] end,
-					set = function(info, value) SP.db.char.toggleSpec[1] = value end,
-					order = 2,
-					disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
+			},
+			equipSetsOptions = {
+				name = "Equipment Sets",
+				type = "group",
+				inline = true,
+				order = 2,
+				get = function(info)
+					return SP.db.char.equipSetsIndex[info.option.order];
+				end,
+				set = function(info, value)
+					SP.db.char.equipSets[info.option.order] = SP.sets[value];
+					SP.db.char.equipSetsIndex[info.option.order] = value;
+					SP.db.char.equipSetIcons[info.option.order] = SP.setIcons[value];
+				end,
+				args = {
+					setDropDown1 = {
+						type = "select",
+						style = "dropdown",
+						name  = function() return "  "..(SP.specs[1] or "") end,
+						desc = "Set the equipment set for this specialization",
+						values = SP.sets,
+						order = 1,
+					},
+					setDropDown2 = {
+						type = "select",
+						style = "dropdown",
+						name  = function() return "  "..(SP.specs[2] or "") end,
+						desc = "Set the equipment set for this specialization",
+						values = SP.sets,
+						order = 2,
+					},
+					setDropDown3 = {
+						type = "select",
+						style = "dropdown",
+						name  = function() return "  "..(SP.specs[3] or "") end,
+						desc = "Set the equipment set for this specialization",
+						values = SP.sets,
+						order = 3,
+						hidden = function() if SP.numSpecs > 2 then return false else return true end end,
+					},
+					setDropDown4 = {
+						type = "select",
+						style = "dropdown",
+						name  = function() return "  "..(SP.specs[4] or "") end,
+						desc = "Set the equipment set for this specialization",
+						values = SP.sets,
+						order = 4,
+						hidden = function() if SP.numSpecs > 3 then return false else return true end end,
+					},
 				},
-				specSecd = {
-					type = "select",
-					style = "dropdown",
-					name  = "  Secondary Spec",
-					desc = "Secondary specialization to toggle between",
-					values = SP.specs,
-					get = function(info) return SP.db.char.toggleSpec[2] end,
-					set = function(info, value) SP.db.char.toggleSpec[2] = value end,
-					order = 3,
-					disabled = function() if SP.db.profile.clickActionIndex == 1 then return false else return true end end,
+			},
+			ldbOptions = {
+				name = "LDB Options",
+				type = "group",
+				inline = true,
+				order = 3,
+				args = {
+					showLdbText = {
+						type = "toggle",
+						name = "Show Label Text",
+						desc = "Shows the \"Spec+\" label on the Data Broker",
+						order = 1,
+					},
+					showLdbIcon = {
+						type = "toggle",
+						name = "Show Spec Icon",
+						desc = "Shows the spec icon in the broker text",
+						order = 2,
+					},
+					showLdbClassColor = {
+						type = "toggle",
+						name = "Show Class Color",
+						desc = "Shows the broker text with your class color",
+						order = 3,
+					},
+				},
+			},
+			printOptions = {
+				name = "Chat Print Options",
+				type = "group",
+				inline = true,
+				order = 4,
+				args = {
+					showPrint = {
+						type = "toggle",
+						name = "Print Spec Change",
+						desc = "Show a chat printout when your spec has changed",
+						order = 1,
+					},
+					showPrintIcon = {
+						type = "toggle",
+						name = "Show Spec Icon",
+						desc = "Shows the spec icon in the chat printout",
+						order = 2,
+					},
+					showPrintClassColor = {
+						type = "toggle",
+						name = "Show Class Color",
+						desc = "Shows the chat printout with your class color",
+						order = 3,
+					},
+					showSetPrint = {
+						type = "toggle",
+						name = "Print Equip Change",
+						desc = "Show a chat printout when your equipment set has changed",
+						order = 4,
+					},
+					showSetPrintIcon = {
+						type = "toggle",
+						name = "Show Equip Icon",
+						desc = "Shows the equipment set icon in the chat printout",
+						order = 5,
+					},
+				},
+			},
+			miscellaneous = {
+				name = "Miscellaneous",
+				type = "group",
+				inline = true,
+				order = 5,
+				args = {
+					showMinimapButton = {
+						type = "toggle",
+						name = "Show Minimap Button",
+						desc = "Show a Minimap button that will display the tooltip",
+						order = 1,
+					},
 				},
 			},
 		},
-		equipSetsOptions = {
-			name = "Equipment Sets",
-			type = "group",
-			inline = true,
-			order = 2,
-			get = function(info)
-				return SP.db.char.equipSetsIndex[info.option.order];
-			end,
-			set = function(info, value)
-				SP.db.char.equipSets[info.option.order] = SP.sets[value];
-				SP.db.char.equipSetsIndex[info.option.order] = value;
-				SP.db.char.equipSetIcons[info.option.order] = SP.setIcons[value];
-			end,
-			args = {
-				setDropDown1 = {
-					type = "select",
-					style = "dropdown",
-					name  = function() return "  "..(SP.specs[1] or "") end,
-					desc = "Set the equipment set for this specialization",
-					values = SP.sets,
-					order = 1,
-				},
-				setDropDown2 = {
-					type = "select",
-					style = "dropdown",
-					name  = function() return "  "..(SP.specs[2] or "") end,
-					desc = "Set the equipment set for this specialization",
-					values = SP.sets,
-					order = 2,
-				},
-				setDropDown3 = {
-					type = "select",
-					style = "dropdown",
-					name  = function() return "  "..(SP.specs[3] or "") end,
-					desc = "Set the equipment set for this specialization",
-					values = SP.sets,
-					order = 3,
-					hidden = function() if SP.numSpecs > 2 then return false else return true end end,
-				},
-				setDropDown4 = {
-					type = "select",
-					style = "dropdown",
-					name  = function() return "  "..(SP.specs[4] or "") end,
-					desc = "Set the equipment set for this specialization",
-					values = SP.sets,
-					order = 4,
-					hidden = function() if SP.numSpecs > 3 then return false else return true end end,
-				},
-			},
-		},
-		ldbOptions = {
-			name = "LDB Options",
-			type = "group",
-			inline = true,
-			order = 3,
-			args = {
-				showLdbText = {
-					type = "toggle",
-					name = "Show Label Text",
-					desc = "Shows the \"Spec+\" label on the Data Broker",
-					order = 1,
-				},
-				showLdbIcon = {
-					type = "toggle",
-					name = "Show Spec Icon",
-					desc = "Shows the spec icon in the broker text",
-					order = 2,
-				},
-				showLdbClassColor = {
-					type = "toggle",
-					name = "Show Class Color",
-					desc = "Shows the broker text with your class color",
-					order = 3,
-				},
-			},
-		},
-		printOptions = {
-			name = "Chat Print Options",
-			type = "group",
-			inline = true,
-			order = 4,
-			args = {
-				showPrint = {
-					type = "toggle",
-					name = "Print Spec Change",
-					desc = "Show a chat printout when your spec has changed",
-					order = 1,
-				},
-				showPrintIcon = {
-					type = "toggle",
-					name = "Show Spec Icon",
-					desc = "Shows the spec icon in the chat printout",
-					order = 2,
-				},
-				showPrintClassColor = {
-					type = "toggle",
-					name = "Show Class Color",
-					desc = "Shows the chat printout with your class color",
-					order = 3,
-				},
-				showSetPrint = {
-					type = "toggle",
-					name = "Print Equip Change",
-					desc = "Show a chat printout when your equipment set has changed",
-					order = 4,
-				},
-				showSetPrintIcon = {
-					type = "toggle",
-					name = "Show Equip Icon",
-					desc = "Shows the equipment set icon in the chat printout",
-					order = 5,
-				},
-			},
-		},
-		miscellaneous = {
-			name = "Miscellaneous",
-			type = "group",
-			inline = true,
-			order = 5,
-			args = {
-				showMinimapButton = {
-					type = "toggle",
-					name = "Show Minimap Button",
-					desc = "Show a Minimap button that will display the tooltip",
-					order = 1,
-				},
-			},
-		},
-	},
-}
+	}
+end
 --]]
 
 
@@ -281,9 +279,9 @@ function SpecPlus:UpdateLDB()
 	end
 	
 	if SP.db.profile.showMinimapButton == true then
-		SP.LibDBIcon:Show("Spec+")
+		LibDBIcon:Show("Spec+")
 	else
-		SP.LibDBIcon:Hide("Spec+")
+		LibDBIcon:Hide("Spec+")
 	end
 end
 
@@ -338,7 +336,7 @@ OnEnter
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:OnEnter(self)
 	--GameTooltip:Hide();
-	SP.tooltip = SP.LibQTip:Acquire("SpecPlusTooltip", 2, "LEFT", "RIGHT");
+	SP.tooltip = LibQTip:Acquire("SpecPlusTooltip", 2, "LEFT", "RIGHT");
 	--SP.tooltip:SetScale(1.0);
 	SP.tooltip:SmartAnchorTo(self);
 	--SP.tooltip:SetCellMarginH(1)
@@ -425,7 +423,7 @@ function SpecPlus:LibQTipClick(index)
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: That Specialization is already active.");
 		else
 			SetSpecialization(index);
-			SP.LibQTip:Release(SP.tooltip);
+			LibQTip:Release(SP.tooltip);
 			SP.tooltip = nil;
 		end
 	else  -- loot spec
@@ -437,7 +435,7 @@ function SpecPlus:LibQTipClick(index)
 			specID = GetSpecializationInfo(index);
 		end
 		SetLootSpecialization(specID);
-		SP.LibQTip:Release(SP.tooltip);
+		LibQTip:Release(SP.tooltip);
 		SP.tooltip = nil;
 	end
 end
@@ -447,14 +445,14 @@ OnInitialize
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:OnInitialize()
 	--Load Database
-	SP.db = SP.AceDB:New("SpecPlusDB", SP.defaults, true);
+	SP.db = LibStub("AceDB-3.0"):New(self.name.."DB", SP.defaults, true);
 	
 	--Register Options Table
-	SP.AceConfig:RegisterOptionsTable("SpecPlus", SP.options);
-	SP.optionsFrame = SP.AceConfigDialog:AddToBlizOptions("SpecPlus", "Spec+");
+	LibStub("AceConfig-3.0"):RegisterOptionsTable(self.name, CreateConfig);
+	SP.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.name, "Spec+");
 	
 	--Load Data Broker Object
-	SP.ldb = SP.LibDataBroker:NewDataObject("Spec+", {
+	SP.ldb = LibStub("LibDataBroker-1.1"):NewDataObject("Spec+", {
 		type = "data source",
 		label = "Spec+",
 		text = "Spec+",
@@ -464,7 +462,7 @@ function SpecPlus:OnInitialize()
 	});
 	
 	--Register Icon
-	SP.LibDBIcon:Register("Spec+", SP.ldb, {hide=not SP.db.profile.showMinimapButton});
+	LibDBIcon:Register("Spec+", SP.ldb, {hide=not SP.db.profile.showMinimapButton});
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
