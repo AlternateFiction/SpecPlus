@@ -24,7 +24,6 @@ SP.LibDBIcon = LibStub("LibDBIcon-1.0");
 SP.tooltip = nil;
 SP.currentTime = 0;
 SP.oldTime = 0;
-SP.currentSpec = GetSpecialization();
 SP.specs = {};
 SP.sets = {"--none--"};
 SP.setIcons = {"Interface\\Icons\\INV_Misc_QuestionMark.blp"};
@@ -484,9 +483,9 @@ function SpecPlus:OnEnable()
 		SP.sets[i+1] = name;
 		SP.setIcons[i+1] = icon;
 	end	
+	SP.currentSpec = GetSpecialization();
 	SP.currentLootSpec = GetLootSpecializationIndex();
 	SpecPlus:UpdateLDB();
-	SpecPlus:ScheduleTimer("UpdateLDB", 0.25);
 end
 
 function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
@@ -513,11 +512,7 @@ function SpecPlus:PLAYER_LEAVING_WORLD(event)
 end	
 
 SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
-local function handler(msg, editbox)
-	if msg == "hw" then
-		print("Hello, World!");
-	else
-		InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
-	end
+local function SlashHandler(msg, editbox)
+	InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
 end
-SlashCmdList["SPECPLUS"] = handler;
+SlashCmdList["SPECPLUS"] = SlashHandler;
