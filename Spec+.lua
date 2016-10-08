@@ -22,7 +22,6 @@ SP.LibDBIcon = LibStub("LibDBIcon-1.0");
 
 --Setup Variables
 SP.tooltip = nil;
-SP.frame = CreateFrame("Frame");
 SP.currentTime = 0;
 SP.oldTime = 0;
 SP.currentSpec = GetSpecialization();
@@ -494,14 +493,8 @@ function SpecPlus:OnInitialize()
 	--Register Icon
 	SP.LibDBIcon:Register("Spec+", SP.ldb, SP.db.profile.minimap);
 	
-	SP.frame:SetScript("OnEvent", function(self, event, ...) 
-		SpecPlus[event](self, ...); 
-	end);
-	
-	SP.frame:RegisterEvent("PLAYER_ENTERING_WORLD");
-	SP.frame:RegisterEvent("PLAYER_LEAVING_WORLD");
-	SP.frame:RegisterEvent("ADDON_LOADED");
-	--SP.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
+	self:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self:RegisterEvent("PLAYER_LEAVING_WORLD");
 	
 	SP.oldTime = GetTime();
 end
@@ -526,13 +519,6 @@ function SpecPlus:OnEnable()
 	SpecPlus:ScheduleTimer("UpdateLDB", 0.25);
 end
 
-function SpecPlus:ADDON_LOADED(AddOn)
-	--if AddOn == "Spec+" then
-		--SpecPlus:UpdateLDB();
-		--SP.frame:UnregisterEvent("ADDON_LOADED");
-	--end
-end
-
 function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
 	SP.currentSpec = GetSpecialization();
 	SP.currentTime = GetTime();
@@ -547,13 +533,13 @@ function SpecPlus:PLAYER_LOOT_SPEC_UPDATED(event)
 end
 
 function SpecPlus:PLAYER_ENTERING_WORLD(event)
-	SP.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-	SP.frame:RegisterEvent("PLAYER_LOOT_SPEC_UPDATED");
+	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+	self:RegisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end
 
 function SpecPlus:PLAYER_LEAVING_WORLD(event)
-	SP.frame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-	SP.frame:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
+	self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+	self:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end	
 
 SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
