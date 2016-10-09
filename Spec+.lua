@@ -17,6 +17,7 @@ local LibQTip = LibStub("LibQTip-1.0");
 local LibDBIcon = LibStub("LibDBIcon-1.0");
 
 --Setup Variables
+SP.fancyName = "Spec+"
 SP.tooltip = nil;
 SP.currentTime = 0;
 SP.oldTime = 0;
@@ -51,7 +52,7 @@ Options
 --]]-----------------------------------------------------------------------------------
 local function CreateConfig()
 	return {
-		name = "Spec+ Settings",
+		name = SP.fancyName.." Settings",
 		handler = SpecPlus,
 		type = "group",
 		get = function(info)
@@ -159,7 +160,7 @@ local function CreateConfig()
 					showLdbText = {
 						type = "toggle",
 						name = "Show Label Text",
-						desc = "Shows the \"Spec+\" label on the Data Broker",
+						desc = "Shows the \""..SP.fancyName.."\" label on the Data Broker",
 						order = 1,
 					},
 					showLdbIcon = {
@@ -270,15 +271,15 @@ function SpecPlus:UpdateLDB()
 	SP.ldb.text = name;
 	
 	if SP.db.profile.showLdbText == true then
-		SP.ldb.label = "Spec+";
+		SP.ldb.label = SP.fancyName;
 	else 
 		SP.ldb.label = nil
 	end
 	
 	if SP.db.profile.showMinimapButton == true then
-		LibDBIcon:Show("Spec+")
+		LibDBIcon:Show(SP.fancyName)
 	else
-		LibDBIcon:Hide("Spec+")
+		LibDBIcon:Hide(SP.fancyName)
 	end
 end
 
@@ -296,7 +297,7 @@ function SpecPlus:SpecChanged()
 		if SP.db.profile.showPrintClassColor == true then
 			name = SpecPlus:ColorName(name);
 		end
-		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: Specialization changed to "..name..".");
+		DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96"..SP.fancyName.."|r: Specialization changed to "..name..".");
 	end
 	SpecPlus:ChangeEquip();
 end
@@ -313,7 +314,7 @@ function SpecPlus:ChangeEquip()
 			if SP.db.profile.showSetPrintIcon == true and icon ~= nil then
 				name = format(("|T%s:16|t%s"),icon, name)
 			end
-			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: Equipment Set changed to "..name..".");
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96"..SP.fancyName.."|r: Equipment Set changed to "..name..".");
 		end
 	end
 end
@@ -338,7 +339,7 @@ function SpecPlus:OnEnter(self)
 	--SP.tooltip:SetCellMarginH(1)
 	SP.tooltip:Clear(); 
 
-	SP.tooltip:AddHeader("|cff00ff96Spec+|r");
+	SP.tooltip:AddHeader("|cff00ff96"..SP.fancyName.."|r");
 	SP.tooltip:AddLine("Click to activate spec", "Gear");
 	SP.tooltip:AddSeparator(2, 0, 55, 255);
 	
@@ -416,7 +417,7 @@ LibQTipClick
 function SpecPlus:LibQTipClick(index)
 	if index > 0 then  -- spec
 		if SP.currentSpec == index then
-			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96Spec+|r: That Specialization is already active.");
+			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96"..SP.fancyName.."|r: That Specialization is already active.");
 		else
 			SetSpecialization(index);
 			LibQTip:Release(SP.tooltip);
@@ -445,20 +446,20 @@ function SpecPlus:OnInitialize()
 	
 	--Register Options Table
 	LibStub("AceConfig-3.0"):RegisterOptionsTable(self.name, CreateConfig);
-	SP.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.name, "Spec+");
+	SP.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.name, SP.fancyName);
 	
 	--Load Data Broker Object
-	SP.ldb = LibStub("LibDataBroker-1.1"):NewDataObject("Spec+", {
+	SP.ldb = LibStub("LibDataBroker-1.1"):NewDataObject(SP.fancyName, {
 		type = "data source",
-		label = "Spec+",
-		text = "Spec+",
+		label = SP.fancyName,
+		text = SP.fancyName,
 		icon = "Interface\\Icons\\INV_Misc_QuestionMark.blp",
 		OnEnter = function(self) SpecPlus:OnEnter(self) end,
 		OnClick = function (self, button) SpecPlus:OnClick(button) end,
 	});
 	
 	--Register Icon
-	LibDBIcon:Register("Spec+", SP.ldb, {hide=not SP.db.profile.showMinimapButton});
+	LibDBIcon:Register(SP.fancyName, SP.ldb, {hide=not SP.db.profile.showMinimapButton});
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
