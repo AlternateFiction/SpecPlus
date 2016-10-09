@@ -45,10 +45,10 @@ SP.defaults = {
 		showSetPrintIcon = true,
 		showMinimapButton = true,
 	},
-}
+};
 
 --[[-----------------------------------------------------------------------------------
-Options 
+Options
 --]]-----------------------------------------------------------------------------------
 local function CreateConfig()
 	return {
@@ -230,7 +230,7 @@ local function CreateConfig()
 				},
 			},
 		},
-	}
+	};
 end
 --]]
 
@@ -240,10 +240,10 @@ local function GetLootSpecializationIndex()
 	for i = 1, SP.numSpecs do
 		local specID = GetSpecializationInfo(i);
 		if lootID == specID then
-			return i
+			return i;
 		end
 	end
-	return 0
+	return 0;
 end
 
 --[[-----------------------------------------------------------------------------------
@@ -252,13 +252,13 @@ UpdateLDB
 function SpecPlus:UpdateLDB()
 	local name, icon
 
-	if SP.currentSpec ~= nil then		
+	if SP.currentSpec ~= nil then
 		_, name, _, icon = GetSpecializationInfo(SP.currentSpec);
 
 		if SP.db.profile.showLdbClassColor == true then
 			name = SpecPlus:ColorName(name);
 		end
-		
+
 		if SP.db.profile.showLdbIcon == true then
 			name = format(("|T%s:16|t%s"), icon, " "..name);
 		end
@@ -266,20 +266,20 @@ function SpecPlus:UpdateLDB()
 		icon = "Interface\\Icons\\INV_Misc_QuestionMark.blp";
 		name = "None";
 	end
-	
+
 	SP.ldb.icon = icon;
 	SP.ldb.text = name;
-	
+
 	if SP.db.profile.showLdbText == true then
 		SP.ldb.label = SP.fancyName;
-	else 
-		SP.ldb.label = nil
-	end
-	
-	if SP.db.profile.showMinimapButton == true then
-		LibDBIcon:Show(SP.fancyName)
 	else
-		LibDBIcon:Hide(SP.fancyName)
+		SP.ldb.label = nil;
+	end
+
+	if SP.db.profile.showMinimapButton == true then
+		LibDBIcon:Show(SP.fancyName);
+	else
+		LibDBIcon:Hide(SP.fancyName);
 	end
 end
 
@@ -288,7 +288,7 @@ SpecChanged
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:SpecChanged()
 	SpecPlus:UpdateLDB();
-	
+
 	if SP.db.profile.showPrint == true then
 		local _, name, _, icon = GetSpecializationInfo(SP.currentSpec);
 		if SP.db.profile.showPrintIcon == true then
@@ -337,20 +337,20 @@ function SpecPlus:OnEnter(self)
 	--SP.tooltip:SetScale(1.0);
 	SP.tooltip:SmartAnchorTo(self);
 	--SP.tooltip:SetCellMarginH(1)
-	SP.tooltip:Clear(); 
+	SP.tooltip:Clear();
 
 	SP.tooltip:AddHeader("|cff00ff96"..SP.fancyName.."|r");
 	SP.tooltip:AddLine("Click to activate spec", "Gear");
 	SP.tooltip:AddSeparator(2, 0, 55, 255);
-	
+
 
 	local numlines = 3; --number of lines created above this
-		
+
 	for i = 1, SP.numSpecs do
 		local _, name, _, icon = GetSpecializationInfo(i);
 		numlines = numlines + 1;
 		if SP.currentSpec ~= i then
-			name = "|cff999999" .. name .. "|r"
+			name = "|cff999999" .. name .. "|r";
 		end
 		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name), SP.db.char.equipSets[i]);
 		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
@@ -368,7 +368,7 @@ function SpecPlus:OnEnter(self)
 		local _, name, _, icon = GetSpecializationInfo(i);
 		numlines = numlines + 1;
 		if SP.currentLootSpec ~= i then
-			name = "|cff999999" .. name .. "|r"
+			name = "|cff999999" .. name .. "|r";
 		end
 		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name));
 		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
@@ -395,16 +395,16 @@ OnClick
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:OnClick(button)
 	button = button or "LeftButton";
-	
+
 	if button == "LeftButton" then
 		if SP.db.profile.clickActionIndex == 1 then
 			if SP.currentSpec == SP.db.char.toggleSpec[1] then
 				SetSpecialization(SP.db.char.toggleSpec[2]);
 			else
 				SetSpecialization(SP.db.char.toggleSpec[1]);
-			end	
+			end
 		else
-			ToggleTalentFrame(2)
+			ToggleTalentFrame(2);
 		end
 	elseif button == "RightButton" then
 		InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
@@ -443,11 +443,11 @@ OnInitialize
 function SpecPlus:OnInitialize()
 	--Load Database
 	SP.db = LibStub("AceDB-3.0"):New(self.name.."DB", SP.defaults, true);
-	
+
 	--Register Options Table
 	LibStub("AceConfig-3.0"):RegisterOptionsTable(self.name, CreateConfig);
 	SP.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.name, SP.fancyName);
-	
+
 	--Load Data Broker Object
 	SP.ldb = LibStub("LibDataBroker-1.1"):NewDataObject(SP.fancyName, {
 		type = "data source",
@@ -457,13 +457,13 @@ function SpecPlus:OnInitialize()
 		OnEnter = function(self) SpecPlus:OnEnter(self) end,
 		OnClick = function (self, button) SpecPlus:OnClick(button) end,
 	});
-	
+
 	--Register Icon
 	LibDBIcon:Register(SP.fancyName, SP.ldb, {hide=not SP.db.profile.showMinimapButton});
-	
+
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
-	
+
 	SP.oldTime = GetTime();
 end
 
@@ -481,7 +481,7 @@ function SpecPlus:OnEnable()
 		local name, icon = GetEquipmentSetInfo(i);
 		SP.sets[i+1] = name;
 		SP.setIcons[i+1] = icon;
-	end	
+	end
 	SP.currentSpec = GetSpecialization();
 	SP.currentLootSpec = GetLootSpecializationIndex();
 	SpecPlus:UpdateLDB();
@@ -508,9 +508,9 @@ end
 function SpecPlus:PLAYER_LEAVING_WORLD()
 	self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 	self:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
-end	
+end
 
-SLASH_SPECPLUS1, SLASH_SPECPLUS2 , SLASH_SPECPLUS3 , SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
+SLASH_SPECPLUS1, SLASH_SPECPLUS2, SLASH_SPECPLUS3, SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
 local function SlashHandler(msg, editbox)
 	InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
 end
