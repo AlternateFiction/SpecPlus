@@ -1,10 +1,10 @@
 # Spec+
 
-_This is a personal fork of Spec+ v0.5_
+_This is a personal fork of Kobaiashi's Spec+ v0.5_
 
 ## Changes
 
-* Loot spec selection in tooltip
+* Added loot spec selection to tooltip
+* Most settings are now non-character specific
 * Fixed some nil errors
-* Most settings are non-character specific
 * General code cleanup
