@@ -30,10 +30,7 @@ SP.defaults = {
 		equipSets = {},
 		equipSetIcons = {},
 		equipSetsIndex = {},
-		toggleSpecs = false,
 		toggleSpec = {1,2},
-		showIcon = true,
-		showLoot = false,
 	},
 	profile = {
 		clickActionIndex = 1,
@@ -291,9 +288,8 @@ SpecChanged
 function SpecPlus:SpecChanged()
 	SpecPlus:UpdateLDB();
 	
-	local _, name, _, icon = GetSpecializationInfo(SP.currentSpec);
-	
 	if SP.db.profile.showPrint == true then
+		local _, name, _, icon = GetSpecializationInfo(SP.currentSpec);
 		if SP.db.profile.showPrintIcon == true then
 			name = format(("|T%s:16|t%s"), icon, " "..name);
 		end
@@ -490,7 +486,7 @@ function SpecPlus:OnEnable()
 	SpecPlus:UpdateLDB();
 end
 
-function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
+function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED()
 	SP.currentSpec = GetSpecialization();
 	SP.currentTime = GetTime();
 	if SP.currentTime > SP.oldTime + 3 then
@@ -499,16 +495,16 @@ function SpecPlus:ACTIVE_TALENT_GROUP_CHANGED(event)
 	end
 end
 
-function SpecPlus:PLAYER_LOOT_SPEC_UPDATED(event)
+function SpecPlus:PLAYER_LOOT_SPEC_UPDATED()
 	SP.currentLootSpec = GetLootSpecializationIndex();
 end
 
-function SpecPlus:PLAYER_ENTERING_WORLD(event)
+function SpecPlus:PLAYER_ENTERING_WORLD()
 	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 	self:RegisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end
 
-function SpecPlus:PLAYER_LEAVING_WORLD(event)
+function SpecPlus:PLAYER_LEAVING_WORLD()
 	self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 	self:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end	
