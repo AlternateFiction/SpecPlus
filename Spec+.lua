@@ -8,7 +8,7 @@ loot spec veiw/change
 --]]
 
 --Setup Addon
-SpecPlus = LibStub("AceAddon-3.0"):NewAddon("SpecPlus", "AceEvent-3.0", "AceTimer-3.0", "AceConsole-3.0");
+SpecPlus = LibStub("AceAddon-3.0"):NewAddon("SpecPlus", "AceEvent-3.0", "AceTimer-3.0");
 SpecPlus.SP = {};
 local SP = SpecPlus.SP;
 
@@ -17,7 +17,8 @@ local LibQTip = LibStub("LibQTip-1.0");
 local LibDBIcon = LibStub("LibDBIcon-1.0");
 
 --Setup Variables
-SP.fancyName = "Spec+"
+local SPEC_LOOT_CURRENT = 0;
+SP.fancyName = "Spec+";
 SP.tooltip = nil;
 SP.currentTime = 0;
 SP.oldTime = 0;
@@ -243,24 +244,24 @@ local function GetLootSpecializationIndex()
 			return i;
 		end
 	end
-	return 0;
+	return SPEC_LOOT_CURRENT;
 end
 
 --[[-----------------------------------------------------------------------------------
 UpdateLDB
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:UpdateLDB()
-	local name, icon
+	local name, icon;
 
 	if SP.currentSpec ~= nil then
-		_, name, _, icon = GetSpecializationInfo(SP.currentSpec);
+		name, _, icon = select(2, GetSpecializationInfo(SP.currentSpec));
 
 		if SP.db.profile.showLdbClassColor == true then
 			name = SpecPlus:ColorName(name);
 		end
 
 		if SP.db.profile.showLdbIcon == true then
-			name = format(("|T%s:16|t%s"), icon, " "..name);
+			name = ("|T%s:16|t %s"):format(icon, name);
 		end
 	else
 		icon = "Interface\\Icons\\INV_Misc_QuestionMark.blp";
@@ -290,9 +291,9 @@ function SpecPlus:SpecChanged()
 	SpecPlus:UpdateLDB();
 
 	if SP.db.profile.showPrint == true then
-		local _, name, _, icon = GetSpecializationInfo(SP.currentSpec);
+		local name, _, icon = select(2, GetSpecializationInfo(SP.currentSpec));
 		if SP.db.profile.showPrintIcon == true then
-			name = format(("|T%s:16|t%s"), icon, " "..name);
+			name = ("|T%s:16|t %s"):format(icon, name);
 		end
 		if SP.db.profile.showPrintClassColor == true then
 			name = SpecPlus:ColorName(name);
@@ -312,7 +313,7 @@ function SpecPlus:ChangeEquip()
 		UseEquipmentSet(name);
 		if SP.db.profile.showSetPrint == true then
 			if SP.db.profile.showSetPrintIcon == true and icon ~= nil then
-				name = format(("|T%s:16|t%s"),icon, name)
+				name = ("|T%s:16|t%s"):format(icon, name)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ff96"..SP.fancyName.."|r: Equipment Set changed to "..name..".");
 		end
@@ -323,7 +324,7 @@ end
 ColorName
 --]]-----------------------------------------------------------------------------------
 function SpecPlus:ColorName(name)
-	local _, class = UnitClass("Player");
+	local class = select(2, UnitClass("Player"));
 	local coloredName = "|c"..RAID_CLASS_COLORS[class].colorStr..name.."|r";
 	return coloredName;
 end
@@ -347,12 +348,12 @@ function SpecPlus:OnEnter(self)
 	local numlines = 3; --number of lines created above this
 
 	for i = 1, SP.numSpecs do
-		local _, name, _, icon = GetSpecializationInfo(i);
+		local name, _, icon = select(2, GetSpecializationInfo(i));
 		numlines = numlines + 1;
 		if SP.currentSpec ~= i then
 			name = "|cff999999" .. name .. "|r";
 		end
-		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name), SP.db.char.equipSets[i]);
+		SP.tooltip:AddLine(("|T%s:16|t%s"):format(icon, name), SP.db.char.equipSets[i]);
 		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
 			SpecPlus:LibQTipClick(i);
 		end);
@@ -365,22 +366,24 @@ function SpecPlus:OnEnter(self)
 	numlines = numlines + 2;
 
 	for i = 1, SP.numSpecs do
-		local _, name, _, icon = GetSpecializationInfo(i);
+		local name, _, icon = select(2, GetSpecializationInfo(i));
 		numlines = numlines + 1;
 		if SP.currentLootSpec ~= i then
 			name = "|cff999999" .. name .. "|r";
 		end
-		SP.tooltip:AddLine(format("|T%s:16|t%s", icon, name));
+		SP.tooltip:AddLine(("|T%s:16|t%s"):format(icon, name));
 		SP.tooltip:SetCellScript(numlines, 1, "OnMouseUp", function(self)
 			SpecPlus:LibQTipClick(-i);
 		end);
 	end
 
+	local actionLB;
 	if SP.db.profile.clickActionIndex == 1 then
-		SP.tooltip:AddLine("|cffffff00Left Click|r to toggle specs");
+		actionLB = "toggle specs";
 	else
-		SP.tooltip:AddLine("|cffffff00Left Click|r to view talents");
+		actionLB = "view talents";
 	end
+	SP.tooltip:AddLine("|cffffff00Left Click|r to "..actionLB);
 	SP.tooltip:AddLine("|cffffff00Right Click|r for options");
 	--SP.tooltip:AddLine(" ")
 	--SP.tooltip:EnableMouse(true);
@@ -404,7 +407,7 @@ function SpecPlus:OnClick(button)
 				SetSpecialization(SP.db.char.toggleSpec[1]);
 			end
 		else
-			ToggleTalentFrame(2);
+			ToggleTalentFrame();
 		end
 	elseif button == "RightButton" then
 		InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
@@ -427,7 +430,7 @@ function SpecPlus:LibQTipClick(index)
 		index = math.abs(index);
 		local specID;
 		if SP.currentLootSpec == index then
-			specID = 0;
+			specID = SPEC_LOOT_CURRENT;
 		else
 			specID = GetSpecializationInfo(index);
 		end
@@ -473,7 +476,7 @@ OnEnable
 function SpecPlus:OnEnable()
 	SP.numSpecs = GetNumSpecializations();
 	for i = 1, SP.numSpecs do
-		local _, name = GetSpecializationInfo(i);
+		local name = select(2, GetSpecializationInfo(i));
 		SP.specs[i] = name;
 	end
 	SP.numsets = GetNumEquipmentSets();
@@ -510,8 +513,8 @@ function SpecPlus:PLAYER_LEAVING_WORLD()
 	self:UnregisterEvent("PLAYER_LOOT_SPEC_UPDATED");
 end
 
-SLASH_SPECPLUS1, SLASH_SPECPLUS2, SLASH_SPECPLUS3, SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
-local function SlashHandler(msg, editbox)
+local function SlashHandler()
 	InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
 end
 SlashCmdList["SPECPLUS"] = SlashHandler;
+SLASH_SPECPLUS1, SLASH_SPECPLUS2, SLASH_SPECPLUS3, SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
