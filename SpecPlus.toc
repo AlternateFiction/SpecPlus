@@ -18,4 +18,4 @@ libs\AceGUI-3.0\AceGUI-3.0.lua
 libs\AceConfig-3.0\AceConfig-3.0.lua
 libs\AceDB-3.0\AceDB-3.0.lua
 
-Spec+.lua
+SpecPlus.lua
