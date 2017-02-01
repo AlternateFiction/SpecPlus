@@ -233,7 +233,17 @@ local function CreateConfig()
 		},
 	};
 end
---]]
+
+
+function SpecPlus:OpenOptions()
+    -- open interface options panel before calling OpenToCategory function to fix an issue
+    -- where the options frame will be opened without any category being selected
+    -- occurs when:
+    --  * calling OpenToCategory with an options label name instead of a menu object reference
+    --  * first time opening the options panel
+    InterfaceOptionsFrame_Show();
+    InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
+end
 
 
 local function GetLootSpecializationIndex()
@@ -410,7 +420,7 @@ function SpecPlus:OnClick(button)
 			ToggleTalentFrame();
 		end
 	elseif button == "RightButton" then
-		InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
+		self:OpenOptions();
 	end
 end
 
@@ -514,7 +524,7 @@ function SpecPlus:PLAYER_LEAVING_WORLD()
 end
 
 local function SlashHandler()
-	InterfaceOptionsFrame_OpenToCategory(SP.optionsFrame);
+	SpecPlus:OpenOptions();
 end
 SlashCmdList["SPECPLUS"] = SlashHandler;
 SLASH_SPECPLUS1, SLASH_SPECPLUS2, SLASH_SPECPLUS3, SLASH_SPECPLUS4 = "/sc", "/spec", "/specp", "/specplus";
